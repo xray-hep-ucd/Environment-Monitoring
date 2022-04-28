@@ -51,13 +51,13 @@ void loop()
 
   //Print the current time 
   time_t t = now();
-  Serial.print("Run_Duration = ");Serial.print(hour(t));Serial.print(":");Serial.print(minute(t));Serial.print(":");Serial.println(second(t));
+  Serial.print("RunDuration=");Serial.print(hour(t));Serial.print(":");Serial.print(minute(t));Serial.print(":");Serial.println(second(t));
   
   //Print temps to serial monitor
-  Serial.print("Temp_1 = "); Serial.println(temp_1);
-  Serial.print("Temp_2 = "); Serial.println(temp_2);
-  Serial.print("Temp_3 = "); Serial.println(temp_3);
-  Serial.print("Temp_4 = "); Serial.println(temp_4);
+  Serial.print("Temp_1="); Serial.println(temp_1);
+  Serial.print("Temp_2="); Serial.println(temp_2);
+  Serial.print("Temp_3="); Serial.println(temp_3);
+  Serial.print("Temp_4="); Serial.println(temp_4);
 
   //Check if any of the boards had faults
   faultCheck();  
