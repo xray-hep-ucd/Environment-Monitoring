@@ -12,5 +12,5 @@ Temperature monitoring is done with pt100 RTDs interfaced with [Adafruit MAX3186
 The door to the x-ray system has several attached [GikFun magnetic sensors](https://www.amazon.com/Gikfun-Sensor-Magnetic-Switch-Arduino/dp/B0154PTDFI) to check for proper closure. These sensors are read out by the Arduino. One end of readout sensor should be connected to the Arduino's ground and the other, a digital pin. A simple Arduino sketch reading out door sensor states is under the "doorSensors" subdirectory.
 
 ## Barometric Pressure
-Barometric pressure monitoring will be done with with an [Adafruit MPL3115A2 barometer](https://www.adafruit.com/product/1893)
+Barometric pressure monitoring is done with with an [Adafruit MPL3115A2 barometer](https://www.adafruit.com/product/1893) and the associated Arduino library. The board was wired following the instructions from Adafruit.
 
