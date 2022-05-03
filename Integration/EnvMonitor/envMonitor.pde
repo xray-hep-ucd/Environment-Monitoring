@@ -24,7 +24,7 @@ void setup()
   fill(0);
   text("Click here and hit the UP arrow to end the run and write data to the file", 10, 225 );
   
-  output.println("Time [dd:hh:ss],Temp_1 [C],Temp_2 [C],Temp_3 [C],Temp_4 [C],Pressure [hPa],Door,"); //Outout file column labels
+  output.println("Time [hh:mm:ss],Temp_1 [C],Temp_2 [C],Temp_3 [C],Temp_4 [C],Pressure [hPa],Door,"); //Outout file column labels
 }
 
 
