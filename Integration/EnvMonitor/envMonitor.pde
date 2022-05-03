@@ -1,6 +1,7 @@
-//Processing sketch to store data passed from Arudino through serial port to an output file
+//Processing sketch to store data passed from Arudino through serial port to an output csv file
+//Displays a color coded and value-labelled monitor to the screen
 
-String outFileName="C:/Users/xrayh/Desktop/Arduino_Outputs/testFile.txt";
+String outFileName="C:/Users/xrayh/Desktop/Arduino_Outputs/testFile.csv";
 
 
 import processing.serial.*;
@@ -11,9 +12,7 @@ void setup()
 {
   size(720, 250);
   textSize(24);
-  
  
-  
   output = createWriter(outFileName);
   
   String portName = Serial.list()[0]; //COM3 should be at index 0
@@ -24,6 +23,8 @@ void setup()
   println("Beginning run... select the status monitor and hit UP to end");
   fill(0);
   text("Click here and hit the UP arrow to end the run and write data to the file", 10, 225 );
+  
+  output.println("Time [dd:hh:ss],Temp_1 [C],Temp_2 [C],Temp_3 [C],Temp_4 [C],Pressure [hPa],Door,"); //Outout file column labels
 }
 
 
@@ -34,19 +35,23 @@ void draw()
     String str = myPort.readString();
     if (str != null)
     {
-       output.println(str); //Write arduino output to file
-       //Extract values from file and update monitor
-       tempMonitor(str);
-       pressureMonitor(str);
-       doorMonitor(str);
-       
+      if (str.startsWith("Run"))
+       {
+         //Extract values from file and update monitor
+         String tempStr = tempMonitor(str);
+         String presStr = pressureMonitor(str);
+         String doorStr = doorMonitor(str);
+         
+        output.println(tempStr + presStr + doorStr); //Write values to file in a CSV format
+       }
     }
    }
 }
 
+
 //Extracts temperatures from the Arduino ouput string and displays them to the canvas
 //Colors can be set with arbitrary thresholds for each RTD
-void tempMonitor(String str)
+String tempMonitor(String str)
 {
  if (str.startsWith("Run"))
        {
@@ -54,6 +59,7 @@ void tempMonitor(String str)
          if (strings.length > 4)
          {
            try {
+             String timeStr = strings[0].split("=")[1].trim();
              String temp1Str = strings[1].split("=")[1].trim();
              float temp1 = Float.parseFloat(temp1Str);
              String temp2Str = strings[2].split("=")[1].trim();
@@ -105,7 +111,7 @@ void tempMonitor(String str)
              text(temp4Str, 380, 100);
              text("[C]", 380, 180);
              
-  
+             return timeStr + "," + temp1Str + "," + temp2Str + "," + temp3Str + "," + temp4Str + ",";
            }
            catch(Exception e)
            {
@@ -113,10 +119,11 @@ void tempMonitor(String str)
            }
          }
        } 
+       return ",,,,,";
 }
 
 
-void pressureMonitor(String str)
+String pressureMonitor(String str)
 {
   if (str.startsWith("Run"))
        {
@@ -139,6 +146,7 @@ void pressureMonitor(String str)
              text("Pressure", 500, 20);
              text(pressureStr, 500, 100); 
              text("[hPa]", 500, 180);
+             return pressureStr + ",";
            }
            catch(Exception e)
            {
@@ -146,17 +154,19 @@ void pressureMonitor(String str)
                fill(0,0,256);
                rect(480, 0, 600, 200);
                fill(0);
-               text("Pressure", 500, 20);
-               
+               text("Pressure", 500, 20);             
            }
          }
        } 
+       
+    return ",";
+       
 }
 
 
 
 //Adds a rectangle to the canvas that is green if door status is CLOSED and red otherwise
-void doorMonitor(String str)
+String doorMonitor(String str)
 {
     if (str.startsWith("Run"))
        {
@@ -175,7 +185,8 @@ void doorMonitor(String str)
              rect(600, 0, 720, 200);
              fill(0);
              text("Door", 620, 20);
-             text(doorStatus, 620, 100);        
+             text(doorStatus, 620, 100);
+             return doorStatus + ",";
            }
            catch(Exception e)
            {
@@ -188,6 +199,7 @@ void doorMonitor(String str)
            }
          }
        } 
+       return ",";
 }
 
 //Pressing the UP arrow while the canvas is selected writes data to the file
