@@ -4,7 +4,7 @@
 --User should specify the variables in all CAPS for each run
 
 local DURATION_MIN = 0.5 --Run length in minutes
-local INTERVAL = 2.0 --delay between measurements
+local INTERVAL = 2.0 --delay between measurements in seconds
 local TO_FILE = true --If true, write to file, else write to console
 local FILENAME = "IonChamberOutputs/testRun.csv" --Output filename/path to write to
 
