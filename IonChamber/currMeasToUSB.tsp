@@ -1,4 +1,7 @@
---Script to run on Keithley DMM6500 Multimeter to read ion chamber current and print to console
+--Script to run on Keithley DMM6500 Multimeter to read ion chamber current and print to a file
+--on a USB drive inserted into the front of the Keithley. If no file is found or TO_FILE is not true
+--will write data to TSB console
+--User should specify the variables in all CAPS for each run
 
 local DURATION_MIN = 0.5 --Run length in minutes
 local INTERVAL = 2.0 --delay between measurements
