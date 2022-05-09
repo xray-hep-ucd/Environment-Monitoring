@@ -1,4 +1,4 @@
---Script to run on Keithley DMM6500 Multimeter to read and store ion chamber current
+--Script to run on Keithley DMM6500 Multimeter to read ion chamber current and print to console
 --Variable defining the run length, set each run
 local DURATION_MIN = 0.5 
 local INTERVAL = 2.0 --delay between measurements
