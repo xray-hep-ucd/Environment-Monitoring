@@ -14,3 +14,5 @@ The door to the x-ray system has several attached [GikFun magnetic sensors](http
 ## Barometric Pressure
 Barometric pressure monitoring is done with with an [Adafruit MPL3115A2 barometer](https://www.adafruit.com/product/1893) and the associated Arduino library. The board was wired following the instructions from Adafruit.
 
+#Analysis
+Post-run analysis of sensor data can be performed by using the tools in the Analysis subdirectory. The directory contains both a Jupyter notebook, configured by default to run on [Google Colab](https://colab.research.google.com/) and a .py python file containing the same utility classes and functions. To use the notebook, the main_path variable in the Setup code section should be modified to the user's path. The code in the .py file is meant to be an importable version of the code in the notebook for use in scripts.
