@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 ##---------------------------------------------------------------------------------------##
 ## Utility functions for time manipulation 
 
+#Splits times of the format hh:mm:ss into components
 #Return the hours, minutes, seconds of the passed time as ints
 def splitTimes(timeStr):
     splitTs = timeStr.split(":")
@@ -51,7 +52,7 @@ def timeDiff(time1, time2, asSec=False):
 
 #A class to store monitoring data from a run
 #Data is stored in a Pandas Dataframe
-class Run:
+class SensorRun:
 
     name = "" 
     filepath = ""
@@ -181,3 +182,42 @@ class Run:
             cols = colNames[columns]
 
         self.data.plot(x=x, y=cols, kind=kind, subplots=subplots, figsize=figsize, title='Sensor Data, Run = "' + self.name + '"', xlabel=xLabel)
+
+
+#A class to hold data from the Ion Chamber readout
+class IonChamberRun:
+    name = ""
+    filepath = ""
+    nEvents = 0
+    data = None
+
+    def __init__(self, name = ""):
+        self.name = name
+
+
+    #Attempt to read the file in filepath into a Pandas DF
+    def readFile(self, filepath, header=0, skiprows=3):
+        self.filepath = filepath
+        if self.name == "":
+            self.name = filepath.split("/")[-1]
+        
+        self.data = pd.read_csv(filepath, header=header, skiprows=skiprows )
+        self.nEvents = self.data.shape[0]
+    
+
+    #Append data in filepath to the current dataframe
+    def addFile(self, filepath, header=0, skiprows=3):
+        if self.filepath == "":
+            self.readFile(filepath)
+        else:
+            if isinstance(self.filepath, str):
+                temp = self.filepath
+                self.filepath = []
+                self.filepath.append(temp)
+            self.append(filepath)
+            newDF = pd.read_csv(filepath, header=header, skiprows=skiprows )
+            self.data.append(newDF)
+
+    #Plot the current vs time
+    def plot(self, kind="line", figsize=(10, 5)):
+        self.data.plot(x="Time [s]", y="Current [nA]", kind=kind, figsize=figsize, title='Ion Chamber Current, Run = "' + self.name + '"', ylabel="Current [nA]")
