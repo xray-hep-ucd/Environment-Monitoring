@@ -2,7 +2,7 @@
 //Displays a color coded and value-labelled monitor to the screen
 
 String outFileName="C:/Users/xrayh/Desktop/Arduino_Outputs/testFile.csv";
-
+//boolean USE_DOOR = false; //Whether or not to expect a door sensor readout from the Arduino
 
 import processing.serial.*;
 Serial myPort;
@@ -10,7 +10,9 @@ PrintWriter output;
 
 void setup()
 {
-  size(720, 250);
+
+  size(720, 250); //The size of the live monitor, change to (840, 250) if adding door sensor
+
   textSize(24);
  
   output = createWriter(outFileName);
@@ -26,7 +28,7 @@ void setup()
   
   output.println("Time [hh:mm:ss],Temp_1 [C],Temp_2 [C],Temp_3 [C],Temp_4 [C],Pressure [hPa],Door,"); //Outout file column labels
 }
-
+ 
 
 void draw()
 {
@@ -40,9 +42,18 @@ void draw()
          //Extract values from file and update monitor
          String tempStr = tempMonitor(str);
          String presStr = pressureMonitor(str);
-         String doorStr = doorMonitor(str);
+         /*String doorStr;
+         if (USE_DOOR)
+         {
+           doorStr = doorMonitor(str);
+         }
+         else
+         {
+           doorStr = ",";
+         }*/
          
-        output.println(tempStr + presStr + doorStr); //Write values to file in a CSV format
+        output.println(tempStr + presStr); //Write values to file in a CSV format
+        //output.println(tempStr + presStr + doorStr); //Write values to file in a CSV format
        }
     }
    }
@@ -133,11 +144,12 @@ String pressureMonitor(String str)
            try 
            {
              String pressureStr = strings[5].split("=")[1].trim();
-             //String tempStr = strings[6].split("=")[1].trim(); //Room temp, not used for status monitor
+             String tempStr = strings[6].split("=")[1].trim(); //Room temp, not used for status monitor
              float pressure =  Float.parseFloat(pressureStr);
+             float temp = Float.parseFloat(tempStr);
              
-             //Change color of rectangle based on door closure status
-             if (pressure > 30.0)
+             //Change color of rectangle based on pressure
+             if (pressure < 1100.0)
                fill(0, 256, 0);
              else
                fill(256, 0, 0);
@@ -146,6 +158,17 @@ String pressureMonitor(String str)
              text("Pressure", 500, 20);
              text(pressureStr, 500, 100); 
              text("[hPa]", 500, 180);
+             
+             if ( temp < 30.0) //Specify arduino box temps here
+               fill(0, 256, 0);
+             else
+               fill(256, 0, 0);
+             rect(600, 0, 720, 200);
+             fill(0);
+             text("Box Temp", 610, 20);
+             text(tempStr, 620, 100);
+             text("[C]", 620, 180);
+             
              return pressureStr + ",";
            }
            catch(Exception e)
@@ -154,7 +177,10 @@ String pressureMonitor(String str)
                fill(0,0,256);
                rect(480, 0, 600, 200);
                fill(0);
-               text("Pressure", 500, 20);             
+               text("Pressure", 500, 20);       
+               rect(600, 0, 720, 200);
+               fill(0);
+               text("Box Temp", 620, 20);
            }
          }
        } 
@@ -182,19 +208,19 @@ String doorMonitor(String str)
                fill(0, 256, 0);
              else
                fill(256, 0, 0);
-             rect(600, 0, 720, 200);
+             rect(720, 0, 840, 200);
              fill(0);
-             text("Door", 620, 20);
-             text(doorStatus, 620, 100);
+             text("Door", 740, 20);
+             text(doorStatus, 740, 100);
              return doorStatus + ",";
            }
            catch(Exception e)
            {
                println("WARNING: Format error in door sensors, skipping monitor update");
                fill(0, 0, 256);
-               rect(600, 0, 720, 200);
+               rect(720, 0, 840, 200);
                fill(0);
-               text("Door", 620, 20);
+               text("Door", 740, 20);
                
            }
          }

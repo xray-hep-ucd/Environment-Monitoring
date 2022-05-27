@@ -34,8 +34,8 @@ Adafruit_MAX31865 thermo_4 = Adafruit_MAX31865(7, 11, 12, 13);
 
 Adafruit_MPL3115A2 baro;
 
-int doorSensor1 = 2; //pin # of first sensor
-int doorSensor2 = 3; //pin # of second sensor
+//int doorSensor1 = 2; //pin # of first sensor
+//int doorSensor2 = 3; //pin # of second sensor
 
 void setup()
 {
@@ -63,8 +63,8 @@ void setup()
   baro.setSeaPressure(1013.26);
 
   //Setup the door sensor pins
-  pinMode(doorSensor1, INPUT_PULLUP);
-  pinMode(doorSensor2, INPUT_PULLUP);
+//  pinMode(doorSensor1, INPUT_PULLUP);
+//  pinMode(doorSensor2, INPUT_PULLUP);
 }
 
 void loop()
@@ -87,7 +87,7 @@ void loop()
   //float altitude = baro.getAltitude(); // [m]
   float temp_baro = baro.getTemperature(); // [C]
 
-
+  /*
   //Check if all door sensors are closed
   String doorStatus;
   if (digitalRead(doorSensor1) == LOW && digitalRead(doorSensor2) == LOW)
@@ -98,6 +98,7 @@ void loop()
   {
     doorStatus = "OPEN";
   }
+  */
 
   Serial.print("RunDuration=");Serial.print(hour(t));Serial.print(":");Serial.print(minute(t));Serial.print(":");Serial.println(second(t));
   Serial.print("Temp_1="); Serial.println(temp_1);
@@ -106,7 +107,7 @@ void loop()
   Serial.print("Temp_4="); Serial.println(temp_4);
   Serial.print("Pressure="); Serial.println(pressure);
   Serial.print("Temp_baro="); Serial.println(temp_baro);
-  Serial.print("Door="); Serial.println(doorStatus);
+  //Serial.print("Door="); Serial.println(doorStatus);
 
   //Delay before next iteration
   delay(DELAY_TIME_MS);
