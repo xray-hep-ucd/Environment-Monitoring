@@ -88,7 +88,7 @@ String tempMonitor(String str)
                fill(256, 0, 0);
              rect(0, 0, 120, 200);
              fill(0);
-             text("Temp 1", 20, 20);
+             text("CS Temp", 20, 20); //Coolant supply temp
              text(temp1Str, 20, 100);
              text("[C]", 20, 180);
              
@@ -98,7 +98,7 @@ String tempMonitor(String str)
                fill(256, 0, 0);
              rect(120, 0, 240, 200);
              fill(0);
-             text("Temp 2", 140, 20);
+             text("CR Temp", 140, 20); //Coolant return temp
              text(temp2Str, 140, 100);
              text("[C]", 140, 180);
              
@@ -108,7 +108,7 @@ String tempMonitor(String str)
                fill(256, 0, 0);
              rect(240, 0, 360, 200);
              fill(0);
-             text("Temp 3", 260, 20);
+             text("BP Temp", 260, 20); //Base plate temp
              text(temp3Str, 260, 100);
              text("[C]", 260, 180);
              
@@ -118,7 +118,7 @@ String tempMonitor(String str)
                fill(256, 0, 0);
              rect(360, 0, 480, 200);
              fill(0);
-             text("Temp 4", 380, 20);
+             text("Ion Temp", 380, 20); //Ion chamber teemp
              text(temp4Str, 380, 100);
              text("[C]", 380, 180);
              
@@ -165,7 +165,7 @@ String pressureMonitor(String str)
                fill(256, 0, 0);
              rect(600, 0, 720, 200);
              fill(0);
-             text("Box Temp", 610, 20);
+             text("Baro Temp", 610, 20); //Barometer (Arduino box) temp
              text(tempStr, 620, 100);
              text("[C]", 620, 180);
              

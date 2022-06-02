@@ -101,12 +101,12 @@ void loop()
   */
 
   Serial.print("RunDuration=");Serial.print(hour(t));Serial.print(":");Serial.print(minute(t));Serial.print(":");Serial.println(second(t));
-  Serial.print("Temp_1="); Serial.println(temp_1);
-  Serial.print("Temp_2="); Serial.println(temp_2);
-  Serial.print("Temp_3="); Serial.println(temp_3);
-  Serial.print("Temp_4="); Serial.println(temp_4);
+  Serial.print("Temp_CS="); Serial.println(temp_1); //CS = Coolant supply
+  Serial.print("Temp_CR="); Serial.println(temp_2); //CR = Coolant return
+  Serial.print("Temp_BP="); Serial.println(temp_3); //BP = Base plate
+  Serial.print("Temp_ion="); Serial.println(temp_4); //Ion = ion chamber
   Serial.print("Pressure="); Serial.println(pressure);
-  Serial.print("Temp_baro="); Serial.println(temp_baro);
+  Serial.print("Temp_baro="); Serial.println(temp_baro); //baro = arduino box temp
   //Serial.print("Door="); Serial.println(doorStatus);
 
   //Delay before next iteration
