@@ -71,55 +71,71 @@ String tempMonitor(String str)
          {
            try {
              String timeStr = strings[0].split("=")[1].trim();
-             String temp1Str = strings[1].split("=")[1].trim();
-             float temp1 = Float.parseFloat(temp1Str);
-             String temp2Str = strings[2].split("=")[1].trim();
-             float temp2 = Float.parseFloat(temp2Str);
-             String temp3Str = strings[3].split("=")[1].trim();
-             float temp3 = Float.parseFloat(temp3Str);
-             String temp4Str = strings[4].split("=")[1].trim();
-             float temp4 = Float.parseFloat(temp4Str);
+             String tempCSStr = strings[1].split("=")[1].trim();
+             float tempCS = Float.parseFloat(tempCSStr);
+             String tempCRStr = strings[2].split("=")[1].trim();
+             float tempCR = Float.parseFloat(tempCRStr);
+             String tempBPStr = strings[3].split("=")[1].trim();
+             float tempBP = Float.parseFloat(tempBPStr);
+             String tempIonStr = strings[4].split("=")[1].trim();
+             float tempIon = Float.parseFloat(tempIonStr);
              //println(temp1Str + " " + temp2Str + " " + temp3Str + " " + temp4Str);
              
              //Change color of rectangle based on temperature thresholds
-             if (temp1 < 22.6)
-               fill(0, 256, 0);
+             if (tempCS < 15.55) // 60 deg F
+               fill(219, 3, 252); //Magenta 
+	     else if (tempCS < 21.11) //70 deg F
+	       fill(0, 256, 0); //Green
+	     else if (tempCS < 23.89) //75F
+	       fill(252, 223, 3); //Yellow
              else
-               fill(256, 0, 0);
+               fill(256, 0, 0); //Red
              rect(0, 0, 120, 200);
              fill(0);
-             text("Temp 1", 20, 20);
-             text(temp1Str, 20, 100);
+             text("CS Temp", 20, 20); //Coolant supply temp
+             text(tempCSStr, 20, 100);
              text("[C]", 20, 180);
-             
-             if (temp2 < 30)
+
+             if (tempCR < 15.55) //60F
+	       fill(219, 3, 252); //Magenta
+	     else if (tempCR < 26.67) //80F
                fill(0,256,0);
-             else
+	      else if (tempCR < 37.78) //100F
+	       fill(252, 223, 3); //Yellow
+	     else
                fill(256, 0, 0);
              rect(120, 0, 240, 200);
              fill(0);
-             text("Temp 2", 140, 20);
-             text(temp2Str, 140, 100);
+             text("CR Temp", 140, 20); //Coolant return temp
+             text(tempCRStr, 140, 100);
              text("[C]", 140, 180);
-             
-             if (temp3 < 22.6)
+
+	     if (tempBP < 15.55) //60F
+	       fill(219, 3, 252); //Magenta
+	     else if (tempBP < 26.67) //80F
                fill(0,256,0);
-             else
+	      else if (tempBP < 37.78) //100F
+	       fill(252, 223, 3); //Yellow
+	     else
                fill(256, 0, 0);
              rect(240, 0, 360, 200);
              fill(0);
-             text("Temp 3", 260, 20);
-             text(temp3Str, 260, 100);
+             text("BP Temp", 260, 20); //Base plate temp
+             text(tempBPStr, 260, 100);
              text("[C]", 260, 180);
              
-             if (temp4 < 22.6)
-               fill(0,256,0);
+             if (tempIon < 15.55) //60F
+	       fill(219, 3, 252); //Magenta
+	     else if (tempIon < 26.67) //80F
+               fill(0,256,0); //Green
+	     else if (tempIon < 32.22) //90F
+	        fill(252, 223, 3); //Yellow
              else
-               fill(256, 0, 0);
+               fill(256, 0, 0); //Red
              rect(360, 0, 480, 200);
              fill(0);
-             text("Temp 4", 380, 20);
-             text(temp4Str, 380, 100);
+             text("Ion Temp", 380, 20); //Ion chamber teemp
+             text(tempIonStr, 380, 100);
              text("[C]", 380, 180);
              
              return timeStr + "," + temp1Str + "," + temp2Str + "," + temp3Str + "," + temp4Str + ",";
@@ -165,7 +181,7 @@ String pressureMonitor(String str)
                fill(256, 0, 0);
              rect(600, 0, 720, 200);
              fill(0);
-             text("Box Temp", 610, 20);
+             text("Baro Temp", 610, 20); //Barometer (Arduino box) temp
              text(tempStr, 620, 100);
              text("[C]", 620, 180);
              
