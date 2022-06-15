@@ -1,7 +1,7 @@
 //Processing sketch to store data passed from Arudino through serial port to an output csv file
 //Displays a color coded and value-labelled monitor to the screen
 
-String outFileName="C:/Users/xrayh/Desktop/Arduino_Outputs/testFile.csv";
+String outFileName="C:/Users/xrayh/Desktop/ArduinoOutputs/testFile.csv";
 //boolean USE_DOOR = false; //Whether or not to expect a door sensor readout from the Arduino
 
 import processing.serial.*;

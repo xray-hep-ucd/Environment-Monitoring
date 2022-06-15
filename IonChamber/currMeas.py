@@ -4,7 +4,7 @@
 
 DURATION_MIN = 2 #How long to collect measurements for in minutes
 INTERVAL = 1.0 #Interval between measurements in seconds
-FILENAME = "c:/Users/xrayh/Desktop/IonChamberOutputs/testRun.csv" # File to write data to
+FILENAME = "c:/Users/xrayh/OneDrive/Desktop/IonChamberOutputs/testRun.csv" # File to write data to
 
 import pyvisa
 import time
@@ -25,7 +25,7 @@ plt.title("Ion Chamber Current")
 plt.xlabel("Time [s]")
 plt.ylabel("Current [nA]")
 
-with open(FILENAME, "a") as file:
+with open(FILENAME, "a+") as file:
     print("Beginning run...")
     print("Data will be written to " + FILENAME)
     
