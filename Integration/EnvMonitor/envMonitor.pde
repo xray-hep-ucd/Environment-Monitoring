@@ -1,7 +1,7 @@
 //Processing sketch to store data passed from Arudino through serial port to an output csv file
 //Displays a color coded and value-labelled monitor to the screen
 
-String outFileName="C:/Users/xrayh/Desktop/ArduinoOutputs/testFile.csv";
+String outFileName="C:/Users/xrayh/OneDrive/Desktop/ArduinoOutputs/beamTest_13Jul22.csv";
 //boolean USE_DOOR = false; //Whether or not to expect a door sensor readout from the Arduino
 
 import processing.serial.*;
@@ -138,7 +138,7 @@ String tempMonitor(String str)
              text(tempIonStr, 380, 100);
              text("[C]", 380, 180);
              
-             return timeStr + "," + temp1Str + "," + temp2Str + "," + temp3Str + "," + temp4Str + ",";
+             //return timeStr + "," + temp1Str + "," + temp2Str + "," + temp3Str + "," + temp4Str + ",";
            }
            catch(Exception e)
            {
