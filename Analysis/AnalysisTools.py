@@ -218,6 +218,17 @@ class IonChamberRun:
             newDF = pd.read_csv(filepath, header=header, skiprows=skiprows )
             self.data.append(newDF)
 
+    #Smooth data using a rolling average and add a new column to the dataframe
+    def smooth(self, windowSize=10):
+        newCol = self.data["Current [nA]"].rolling(windowSize).mean()
+        self.data["Smoothed Current [nA]"] = newCol
+        self.data.dropna()
+
     #Plot the current vs time
-    def plot(self, kind="line", figsize=(10, 5)):
-        self.data.plot(x="Time [s]", y="Current [nA]", kind=kind, figsize=figsize, title='Ion Chamber Current, Run = "' + self.name + '"', ylabel="Current [nA]")
+    def plot(self, kind="scatter", smooth=False, figsize=(10, 5)):
+        if smooth:
+            if "Smoothed Current [nA]" not in self.data.columns:
+                self.smooth()
+            self.data.plot(x="Time [s]", y="Smoothed Current [nA]", kind=kind, figsize=figsize, title='Ion Chamber Current, Run = "' + self.name + '"', ylabel="Current [nA]")
+        else:
+            self.data.plot(x="Time [s]", y="Current [nA]", kind=kind, figsize=figsize, title='Ion Chamber Current, Run = "' + self.name + '"', ylabel="Current [nA]")
