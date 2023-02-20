@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-##---------------------------------------------------------------------------------------##
+##-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Utility functions for time manipulation 
 
 #Splits times of the format hh:mm:ss into components
@@ -48,7 +48,7 @@ def timeDiff(time1, time2, asSec=False):
     else:
         return timeDiff
 
-##----------------------------------------------------------------------------------------##
+##-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #A class to store monitoring data from a run
 #Data is stored in a Pandas Dataframe
@@ -183,6 +183,7 @@ class SensorRun:
 
         self.data.plot(x=x, y=cols, kind=kind, subplots=subplots, figsize=figsize, title='Sensor Data, Run = "' + self.name + '"', xlabel=xLabel)
 
+##-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #A class to hold data from the Ion Chamber readout
 class IonChamberRun:
@@ -190,10 +191,11 @@ class IonChamberRun:
     filepath = ""
     nEvents = 0
     data = None
+    rois = [] #List of boundaries [min, max] of regions of interest, portions of data when shutter was open (aka bright)
+    darkRegs = [] #List of boundaries [min, max] of portions of data when shutter was closed (dark current aka noise)
 
     def __init__(self, name = ""):
         self.name = name
-
 
     #Attempt to read the file in filepath into a Pandas DF
     def readFile(self, filepath, header=0, skiprows=3):
@@ -204,7 +206,6 @@ class IonChamberRun:
         self.data = pd.read_csv(filepath, header=header, skiprows=skiprows )
         self.nEvents = self.data.shape[0]
     
-
     #Append data in filepath to the current dataframe
     def addFile(self, filepath, header=0, skiprows=3):
         if self.filepath == "":
@@ -225,10 +226,188 @@ class IonChamberRun:
         self.data.dropna()
 
     #Plot the current vs time
-    def plot(self, kind="scatter", smooth=False, figsize=(10, 5)):
+    def plot(self, kind="scatter", smooth=False, incROIs=False, figsize=(10, 5)):
         if smooth:
             if "Smoothed Current [nA]" not in self.data.columns:
                 self.smooth()
             self.data.plot(x="Time [s]", y="Smoothed Current [nA]", kind=kind, figsize=figsize, title='Ion Chamber Current, Run = "' + self.name + '"', ylabel="Current [nA]")
         else:
             self.data.plot(x="Time [s]", y="Current [nA]", kind=kind, figsize=figsize, title='Ion Chamber Current, Run = "' + self.name + '"', ylabel="Current [nA]")
+        if incROIs and (kind == "scatter" or kind == "line"):
+            ax = plt.gca()
+            yAxisLims = ax.get_ylim()
+            fig = plt.gcf()
+            for roi in self.rois:
+                plt.plot([roi[0], roi[0]], [yAxisLims[0], yAxisLims[1]], color="darkred", linestyle="dashed")
+                fig.show()
+                plt.plot([roi[1], roi[1]], [yAxisLims[0], yAxisLims[1]], color="darkred", linestyle="dashed")
+                fig.show()
+            for roi in self.darkRegs:
+                plt.plot([roi[0], roi[0]], [yAxisLims[0], yAxisLims[1]], color="darkmagenta", linestyle="dashed")
+                fig.show()
+                plt.plot([roi[1], roi[1]], [yAxisLims[0], yAxisLims[1]], color="darkmagenta", linestyle="dashed")
+                fig.show()
+
+    #Return the min, max, idx_min, idx_max of the specified column
+    #col, the colum name to consider
+    def getMinMax(self, col):
+        column = self.data[col]
+        min = column.min()
+        max = column.max()
+        idx_min = column.idxmin()
+        idx_max = column.idxmax()
+        return min, max, idx_min, idx_max
+
+    #Set regions of interest for analysis
+    #param roiTuples : a list of [min, max] boundaries or regions of interest
+    #param dark : if true, region is marked as a dark current region not an ROI. defaults to False
+    def addROIs(self, roiTuples, dark=False, clearPrev=False ):
+        if not dark:
+            if clearPrev:
+                self.rois = []
+            for roi in roiTuples:
+                self.rois.append(roi)
+        else:
+            if clearPrev:
+                self.darkRegs = []
+            for roi in roiTuples:
+                self.darkRegs.append(roi)
+
+    #Return the average value and standard deviation for the specified ROI
+    #rois = a list of regions of interest time tuples [(t_min1, t_max1), ...] to consider
+    #if rois is None, defaults to self.rois. If self.rois is empty, uses all data
+    #returns    mean, std dev, Num of points    of the region 
+    def getStatsROI(self, col="Current [nA]", rois=None, dark=False):
+        theROIs = []
+        if rois != None:
+            for roi in rois:
+                theROIs.append(roi)
+        elif not dark and len(self.rois) > 0:
+            theROIs = self.rois
+        elif dark and len(self.darkRegs) > 0:
+            theROIs = self.darkRegs
+        else:
+            min, max, idx_min, idx_max = self.getMinMax(col="Time [s]")
+            theROIs.append((min, max))
+
+        combRegion = None
+        for roiNum, roi in enumerate(theROIs):
+            roiData = self.data[self.data["Time [s]"] >= roi[0]] #Select the time window of interest
+            roiData = roiData[roiData["Time [s]"] <= roi[1]]
+            roiData = roiData[col] #Only want one column of data
+
+            if roiNum == 0: #Add data to combined region
+                combRegion = roiData
+            else:
+                combRegion = pd.concat([combRegion, roiData])
+
+        mean = combRegion.mean()
+        stdDev = combRegion.std()
+        nPts = len(combRegion.index)
+
+        return mean, stdDev, nPts
+
+    #Get the average shutter open (bright) current minus the average dark current and associated uncertainty
+    def getCurrentDiff(self):
+        if len(self.rois) < 1:
+            print("WARNING: Please set at least one ROI first")
+            pass
+        if len(self.darkRegs) < 1:
+            print("WARNING: Please set at least one ROI first")
+            pass
+
+        avg_bright, stdDev_bright, nPts_bright = self.getStatsROI(dark=False)
+        avg_dark, stdDev_dark, nPts_dark = self.getStatsROI(dark=True)
+
+        currDiff = avg_bright - avg_dark
+        currDiffErr = stdDev_bright + stdDev_dark
+        return currDiff, currDiffErr
+
+    #Print stats cleanly
+    def summarizeStats(self):
+        avg_bright, stdDev_bright, nPts_bright = self.getStatsROI(dark=False)
+        print("Bright Stats : Mean = " + str(avg_bright)[:5] + "nA, Std Dev = " + str(stdDev_bright)[:5] + "nA, Npts = " + str(nPts_bright))
+        avg_dark, stdDev_dark, nPts_dark = self.getStatsROI(dark=True)
+        print("Dark Stats : Mean = " + str(avg_dark)[:5] + "nA, Std Dev = " + str(stdDev_dark)[:5] + "nA, Npts = " + str(nPts_dark))
+        currDiff, currDiffErr = self.getCurrentDiff()
+        print("Dark subtracted current = " + str(currDiff)[:5] + " , error = " + str(currDiffErr)[:5])
+
+##-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# A function to make an IV curve for IC
+#dir_path : Path to directory containing files.
+#Note that files are assumed to have the form ivCurve_###V.csv
+#tubeSettings : x-ray tube settings, current and voltage for plot labelling: e.g. "10 mA, 40 kV"
+#requireApproval : if true, will show a plot of the rois and darkRegions and ask for approval
+def makeIVcurve(dir_path, tubeSettings, defaultBrightRois=[(140, 290)], defaultDarkRegs=[(10, 100)], requireApproval=False):
+    voltages = []
+    currents = []
+    errors = []
+
+    for file in os.listdir(dir_path):
+        voltage = file.split(".")[0].split("_")[1][:-1] #Extract voltage from the filename, expected format is ivCurve_###V.csv
+        voltages.append(int(voltage))
+
+        icRun = IonChamberRun()
+        icRun.readFile(dir_path + file)
+        
+
+        rois=defaultBrightRois #Designate a portion of data as bright (shutter open)
+        icRun.addROIs(rois, dark=False, clearPrev=True)
+        darkRegs=defaultDarkRegs #Designate a portion of data to measure dark current (shutter closed)
+        icRun.addROIs(darkRegs, dark=True, clearPrev=True)
+
+        if requireApproval:
+            print("\n The next plot...")
+            icRun.plot(incROIs=True, figsize=(5, 4))
+            plt.pause(1)
+            approval = input("Are the default bright and dark regions ok? (y/n): ")
+            if approval != "y":
+
+                print("\nEnter the minima and maxima of new bright and dark regions")
+                print("Starting with bright regions... Enter nothing when ready to continue to dark regions")
+                newRois = []
+                while(True):
+                    min = input("Enter bright region minimum: ")
+                    max = input("Enter bright region maximum: ")
+                    if len(min) == 0 or len(max) == 0:
+                        break
+                    min = int(min)
+                    max = int(max)
+                    newRois.append((min, max))
+                icRun.addROIs(newRois, dark=False, clearPrev=True)
+                    
+                print("Continuing with dark regions... Enter nothing when done entering dark regions")
+                darkRegs = []
+                while(True):
+                    min = input("Enter dark region minimum: ")
+                    max = input("Enter dark region maximum: ")
+                    if len(min) == 0 or len(max) == 0:
+                        break
+                    min = int(min)
+                    max = int(max)
+                    darkRegs.append((min, max))
+                icRun.addROIs(darkRegs, dark=True, clearPrev=True)
+            print("The new regions...")
+            icRun.plot(incROIs=True, figsize=(5, 4))
+            plt.pause(1)
+            plt.clf()
+
+        currDiff, error = icRun.getCurrentDiff() #Get bright-dark current and associated error
+        currents.append(currDiff)
+        errors.append(error)
+
+
+    fig = plt.figure(figsize=(15,10))
+    plt.errorbar(x=voltages, y=currents, fmt='bo', yerr=errors, color="blue", ls='none')
+    plt.title("Ion Chamber Response: Tube Settings = " + str(tubeSettings))
+    plt.xlabel("Actual Voltage [V]")
+    plt.ylabel("Current [nA]")
+    
+    fig.show()
+
+    print("Voltages: " + str(voltages))
+    print("Currents: " + str(currents))
+    print("Current Uncertainties: " + str(errors))
+
+##-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
